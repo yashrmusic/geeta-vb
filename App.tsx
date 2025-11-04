@@ -6,6 +6,7 @@ import LoadingSpinner from './components/LoadingSpinner';
 import ChapterNavigation from './components/ChapterNavigation';
 import BookView from './components/BookView';
 import ProgressBar from './components/ProgressBar';
+import HomeIntro from './components/HomeIntro';
 import { fetchWisdomForChapter } from './services/geminiService';
 import { GitaWisdom } from './types';
 
@@ -95,6 +96,9 @@ const App: React.FC = () => {
       {showProgressBar && <ProgressBar progress={progressToShow} />}
       <Header />
       <main className="relative z-10 flex-grow flex flex-col items-center justify-center w-full px-4 md:px-8 space-y-8 max-w-7xl">
+        {viewMode === 'quote' && currentChapter === 1 && !isLoading && !error && (
+          <HomeIntro />
+        )}
         <ChapterNavigation
           currentChapter={currentChapter}
           totalChapters={TOTAL_CHAPTERS}

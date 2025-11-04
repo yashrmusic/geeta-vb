@@ -1,9 +1,17 @@
 import { GoogleGenAI, Type } from "@google/genai";
-import { GitaWisdom, Chapter } from '../types';
+import { GitaWisdom, Chapter, Verse } from '../types';
 
 // Per instructions, API key must come from process.env.API_KEY
-const apiKey = process.env.API_KEY || process.env.GEMINI_API_KEY || '';
-const ai = apiKey ? new GoogleGenAI({ apiKey }) : null;
+// Check both API_KEY and GEMINI_API_KEY, and also check if it's a string (not undefined)
+const apiKey = (process.env.API_KEY || process.env.GEMINI_API_KEY || '').trim();
+const ai = apiKey && apiKey.length > 0 ? new GoogleGenAI({ apiKey }) : null;
+
+// Debug logging (remove in production)
+if (!apiKey || apiKey.length === 0) {
+    console.warn('No API key found. Using mock data. Set API_KEY in .env.local for full content.');
+} else {
+    console.log('API key loaded successfully');
+}
 
 // Mock data for when API key is not available
 const mockWisdom: Record<number, GitaWisdom> = {
@@ -147,6 +155,104 @@ export const fetchWisdomForChapter = async (chapter: number): Promise<GitaWisdom
         console.error("Error fetching wisdom from Gemini API:", error);
         // Fallback to mock data in case of API error
         return getMockWisdom(chapter);
+    }
+};
+
+export const fetchChapterPreview = async (chapterNumber: number): Promise<string> => {
+    if (!ai) {
+        return "Chapter previews require an API key. This chapter will explore the profound teachings of the Ashtavakra Gita on the nature of the Self and reality.";
+    }
+    
+    try {
+        const prompt = `Provide a compelling preview/introduction for Chapter ${chapterNumber} of the Ashtavakra Gita. 
+
+This preview should:
+1. Explain what will be discussed in this chapter - what topics or questions will be explored
+2. Describe the dialogue or teaching context (e.g., what questions are being answered, what the student/reader will learn)
+3. Set the stage for understanding the verses that follow
+4. Be engaging and help the reader understand what to expect from this chapter
+
+Write 2-3 sentences that act as a preview/introduction to prepare the reader for what they're about to learn in Chapter ${chapterNumber}.`;
+
+        const response = await ai.models.generateContent({
+            model: "gemini-2.5-flash",
+            contents: prompt,
+            config: {
+                temperature: 0.7,
+            },
+        });
+
+        return response.text.trim();
+    } catch (error) {
+        console.error("Error fetching chapter preview:", error);
+        throw new Error("Failed to generate preview");
+    }
+};
+
+export const fetchChapterAudioExplanation = async (chapterNumber: number, chapterTitle: string): Promise<string> => {
+    if (!ai) {
+        return "Audio explanations require an API key. Please configure your API key for high-quality chapter audio explanations.";
+    }
+    
+    try {
+        const prompt = `Create a comprehensive, engaging audio explanation for Chapter ${chapterNumber}: "${chapterTitle}" of the Ashtavakra Gita.
+
+This should be:
+1. Written as if being spoken aloud (natural, conversational tone)
+2. A complete overview of the chapter's teachings and themes
+3. Explain the key concepts and their significance
+4. Connect the teachings to practical spiritual understanding
+5. Be approximately 3-5 minutes when read aloud (about 400-600 words)
+6. Engaging and easy to follow
+
+Write this as a flowing narrative that would sound natural when read by a high-quality text-to-speech voice.`;
+
+        const response = await ai.models.generateContent({
+            model: "gemini-2.5-flash",
+            contents: prompt,
+            config: {
+                temperature: 0.7,
+            },
+        });
+
+        return response.text.trim();
+    } catch (error) {
+        console.error("Error fetching audio explanation:", error);
+        throw new Error("Failed to generate audio explanation");
+    }
+};
+
+export const fetchVerseExplanation = async (verse: Verse, chapterNumber: number): Promise<string> => {
+    if (!ai) {
+        return "AI explanations require an API key. Please configure your API key in .env.local to get detailed verse explanations.";
+    }
+    
+    try {
+        const prompt = `Provide a deep, insightful explanation of Verse ${verse.verse_number} from Chapter ${chapterNumber} of the Ashtavakra Gita.
+
+Sanskrit verse: "${verse.sanskrit}"
+English translation: "${verse.translation}"
+
+Explain:
+1. The deeper spiritual meaning of this verse
+2. How it relates to the overall teachings of the Ashtavakra Gita
+3. Practical implications for daily life and spiritual practice
+4. The philosophical significance
+
+Keep the explanation clear, profound, and accessible. Write in 2-3 paragraphs.`;
+
+        const response = await ai.models.generateContent({
+            model: "gemini-2.5-flash",
+            contents: prompt,
+            config: {
+                temperature: 0.7,
+            },
+        });
+
+        return response.text.trim();
+    } catch (error) {
+        console.error("Error fetching verse explanation:", error);
+        throw new Error("Failed to generate explanation");
     }
 };
 

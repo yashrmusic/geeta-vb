@@ -1,89 +1,35 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Verse } from '../types';
-
-const PlayIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
-    </svg>
-);
-
-const PauseIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 7a1 1 0 00-1 1v4a1 1 0 001 1h4a1 1 0 001-1V8a1 1 0 00-1-1H8z" clipRule="evenodd" />
-    </svg>
-);
-
+import VerseExplanation from './VerseExplanation';
 
 interface VerseDisplayProps {
   verse: Verse;
+  chapterNumber: number;
 }
 
-const VerseDisplay: React.FC<VerseDisplayProps> = ({ verse }) => {
-    const [utterance, setUtterance] = useState<SpeechSynthesisUtterance | null>(null);
-    const [isPlaying, setIsPlaying] = useState(false);
-
-    useEffect(() => {
-        const synth = window.speechSynthesis;
-        const u = new SpeechSynthesisUtterance();
-        
-        const onEnd = () => setIsPlaying(false);
-        u.addEventListener('end', onEnd);
-
-        setUtterance(u);
-
-        return () => {
-            u.removeEventListener('end', onEnd);
-            synth.cancel();
-        };
-    }, []);
-
-    const handlePlay = (text: string, lang: string) => {
-        if (!utterance) return;
-        const synth = window.speechSynthesis;
-        
-        if (synth.speaking) {
-            synth.cancel();
-            // If the same text was playing, it effectively pauses/stops it.
-            // If we now want to play a *different* text, we continue.
-            if (utterance.text === text && isPlaying) {
-                 setIsPlaying(false);
-                 return;
-            }
-        }
-        
-        utterance.text = text;
-        utterance.lang = lang;
-        utterance.rate = lang === 'sa-IN' ? 0.8 : 1.0;
-        synth.speak(utterance);
-        setIsPlaying(true);
-    };
-
+const VerseDisplay: React.FC<VerseDisplayProps> = ({ verse, chapterNumber }) => {
+  // Simple, elegant audio mode - removed TTS completely
+  // Audio feature can be added later with actual audio files if needed
 
   return (
-    <article className="p-4 bg-black/20 rounded-lg border border-white/10">
-      <div className="flex justify-between items-baseline mb-3">
-        <h4 className="font-semibold text-cyan-400">Verse {verse.verse_number}</h4>
+    <article className="p-6 bg-gradient-to-br from-slate-900/60 via-slate-800/40 to-slate-900/60 backdrop-blur-sm border border-amber-500/10 rounded-xl shadow-lg">
+      <div className="flex justify-between items-start mb-4">
+        <h4 className="font-light text-amber-300/90 text-base tracking-wide">Verse {verse.verse_number}</h4>
       </div>
-      <div className="flex items-start gap-3">
-        <button 
-          onClick={() => handlePlay(verse.sanskrit, 'sa-IN')}
-          className="text-gray-400 hover:text-white transition-colors mt-1"
-          aria-label="Play Sanskrit verse"
-        >
-          {isPlaying && utterance?.text === verse.sanskrit ? <PauseIcon /> : <PlayIcon />}
-        </button>
-        <p className="font-serif text-xl text-white flex-1 leading-loose">{verse.sanskrit}</p>
+      
+      <div className="space-y-4">
+        <div>
+          <p className="font-serif text-xl md:text-2xl text-white/95 leading-relaxed mb-2">{verse.sanskrit}</p>
+        </div>
+        
+        <div className="h-px bg-gradient-to-r from-transparent via-amber-400/20 to-transparent"></div>
+        
+        <div>
+          <p className="text-amber-50/80 text-base md:text-lg leading-relaxed font-light">{verse.translation}</p>
+        </div>
       </div>
-      <div className="flex items-start gap-3 mt-4">
-        <button 
-           onClick={() => handlePlay(verse.translation, 'en-US')}
-           className="text-gray-400 hover:text-white transition-colors mt-1"
-           aria-label="Play English translation"
-        >
-           {isPlaying && utterance?.text === verse.translation ? <PauseIcon /> : <PlayIcon />}
-        </button>
-        <p className="text-gray-300 flex-1 leading-relaxed">{verse.translation}</p>
-      </div>
+
+      <VerseExplanation verse={verse} chapterNumber={chapterNumber} />
     </article>
   );
 };

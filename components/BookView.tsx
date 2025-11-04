@@ -5,6 +5,8 @@ import VerseDisplay from './VerseDisplay';
 import LoadingSpinner from './LoadingSpinner';
 import PodcastEmbeds from './PodcastEmbeds';
 import ShareButton from './ShareButton';
+import ChapterPreview from './ChapterPreview';
+import AudioMode from './AudioMode';
 
 interface BookViewProps {
   chapter: number;
@@ -66,7 +68,7 @@ const BookView: React.FC<BookViewProps> = ({ chapter, onProgressUpdate }) => {
   const goToPrevPage = () => setCurrentPage(prev => Math.max(prev - 1, 1));
 
   return (
-    <div className="bg-black/40 backdrop-blur-lg border border-white/10 rounded-2xl p-6 md:p-10 shadow-2xl w-full max-w-4xl min-h-[60vh] flex flex-col">
+    <div className="bg-gradient-to-br from-slate-900/90 via-slate-800/80 to-slate-900/90 backdrop-blur-2xl border border-amber-500/20 rounded-3xl p-8 md:p-12 shadow-2xl w-full max-w-4xl min-h-[60vh] flex flex-col">
       {isLoading ? (
         <div className="flex flex-col items-center justify-center flex-grow">
           <LoadingSpinner />
@@ -79,29 +81,35 @@ const BookView: React.FC<BookViewProps> = ({ chapter, onProgressUpdate }) => {
         </div>
       ) : chapterData ? (
         <div className="flex flex-col flex-grow">
-            <div className="flex justify-between items-start mb-4">
+            <div className="flex justify-between items-start mb-6">
                 <div>
-                    <h2 className="text-2xl font-bold text-white">Chapter {chapterData.chapter_number}</h2>
-                    <p className="text-cyan-300">{chapterData.title}</p>
+                    <h2 className="text-3xl md:text-4xl font-light text-white mb-2">Chapter {chapterData.chapter_number}</h2>
+                    <p className="text-amber-200/80 text-lg font-light">{chapterData.title}</p>
                 </div>
                 <ShareButton title={`Chapter ${chapterData.chapter_number}: ${chapterData.title}`} />
             </div>
-             <p className="text-gray-300 italic text-sm mb-6">{chapterData.summary}</p>
-             <hr className="border-t border-gray-500/50 my-4" />
+             <p className="text-amber-100/70 italic text-base mb-6 leading-relaxed">{chapterData.summary}</p>
+             <div className="h-px bg-gradient-to-r from-transparent via-amber-400/30 to-transparent mb-6"></div>
+             
+             <ChapterPreview chapterNumber={chapterData.chapter_number} chapterTitle={chapterData.title} />
+             
+             <AudioMode chapterNumber={chapterData.chapter_number} chapterTitle={chapterData.title} />
+             
+             <div className="h-px bg-gradient-to-r from-transparent via-amber-400/20 to-transparent mb-6"></div>
 
             <div className="space-y-6 flex-grow">
                 {currentVerses.map((verse) => (
-                    <VerseDisplay key={verse.verse_number} verse={verse} />
+                    <VerseDisplay key={verse.verse_number} verse={verse} chapterNumber={chapterData.chapter_number} />
                 ))}
             </div>
 
-            <div className="flex justify-between items-center mt-8 pt-4 border-t border-white/10">
-                <button onClick={goToPrevPage} disabled={currentPage === 1} className="px-4 py-2 bg-black/20 rounded-md text-sm hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">Previous</button>
-                <span className="text-sm text-gray-400">Page {currentPage} of {totalPages}</span>
-                <button onClick={goToNextPage} disabled={currentPage === totalPages} className="px-4 py-2 bg-black/20 rounded-md text-sm hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">Next</button>
+            <div className="flex justify-between items-center mt-8 pt-6 border-t border-amber-500/20">
+                <button onClick={goToPrevPage} disabled={currentPage === 1} className="px-6 py-2.5 bg-amber-950/30 border border-amber-500/20 rounded-lg text-sm font-light text-amber-200/80 hover:text-amber-100 hover:border-amber-400/30 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-300">Previous</button>
+                <span className="text-sm text-amber-200/60 font-light tracking-wide">Page {currentPage} of {totalPages}</span>
+                <button onClick={goToNextPage} disabled={currentPage === totalPages} className="px-6 py-2.5 bg-amber-950/30 border border-amber-500/20 rounded-lg text-sm font-light text-amber-200/80 hover:text-amber-100 hover:border-amber-400/30 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-300">Next</button>
             </div>
             
-            <hr className="border-t border-gray-500/50 my-8" />
+            <div className="h-px bg-gradient-to-r from-transparent via-amber-400/20 to-transparent my-8"></div>
             <PodcastEmbeds currentChapter={chapter} />
         </div>
       ) : null}
