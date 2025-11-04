@@ -3,10 +3,17 @@ import React from 'react';
 const LoadingSpinner: React.FC = () => {
   return (
     <div className="relative flex items-center justify-center">
-      <div className="absolute w-20 h-20 border-4 border-cyan-400/20 border-solid rounded-full"></div>
-      <div className="absolute w-20 h-20 border-4 border-transparent border-t-cyan-400 border-r-cyan-400 rounded-full animate-spin"></div>
-      <div className="absolute w-12 h-12 border-4 border-transparent border-b-purple-400 border-l-purple-400 rounded-full animate-spin" style={{ animationDirection: 'reverse', animationDuration: '0.8s' }}></div>
-      <div className="absolute w-6 h-6 bg-cyan-400 rounded-full animate-pulse"></div>
+      {/* Outer ring */}
+      <div className="absolute w-24 h-24 border border-amber-400/10 rounded-full"></div>
+      
+      {/* Spinning ring */}
+      <div className="absolute w-24 h-24 border-2 border-transparent border-t-amber-400/40 border-r-amber-400/20 rounded-full animate-spin" style={{ animationDuration: '2s' }}></div>
+      
+      {/* Inner counter-spinning ring */}
+      <div className="absolute w-16 h-16 border border-transparent border-b-amber-400/30 border-l-amber-400/20 rounded-full animate-spin" style={{ animationDirection: 'reverse', animationDuration: '1.5s' }}></div>
+      
+      {/* Center dot */}
+      <div className="absolute w-3 h-3 bg-amber-400/40 rounded-full animate-pulse"></div>
     </div>
   );
 };
