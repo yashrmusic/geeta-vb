@@ -2,7 +2,7 @@ import React from 'react';
 
 const HomeIntro: React.FC = () => {
   return (
-    <div className="w-full max-w-4xl mb-12">
+    <div className="w-full max-w-4xl">
       <div className="bg-gradient-to-br from-slate-900/90 via-slate-800/80 to-slate-900/90 backdrop-blur-2xl border border-amber-500/20 rounded-3xl p-8 md:p-12 shadow-2xl">
         <div className="space-y-6">
           <div>
