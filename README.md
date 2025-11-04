@@ -1,20 +1,31 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# Ashtavakra Gita - Wisdom App
 
-# Run and deploy your AI Studio app
+A beautiful and serene application to discover profound wisdom from the Ashtavakra Gita. Explore ancient insights with a modern, elegant interface.
 
-This contains everything you need to run your app locally.
+## Features
 
-View your app in AI Studio: https://ai.studio/apps/drive/1i8woArYGeYuKW353dUOBQPRDy1CpemqA
+- Browse through all 20 chapters of the Ashtavakra Gita
+- Receive profound quotes and insights powered by AI
+- Read full chapter content with Sanskrit verses and translations
+- Beautiful, modern UI with smooth animations
 
 ## Run Locally
 
-**Prerequisites:**  Node.js
-
+**Prerequisites:** Node.js
 
 1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
+   ```bash
+   npm install
+   ```
+
+2. Set the `API_KEY` in `.env.local` to your Gemini API key:
+   ```
+   API_KEY=your_api_key_here
+   ```
+
 3. Run the app:
-   `npm run dev`
+   ```bash
+   npm run dev
+   ```
+
+4. Open your browser and navigate to the local development URL (typically `http://localhost:5173`)
