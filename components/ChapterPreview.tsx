@@ -12,10 +12,22 @@ const ChapterPreview: React.FC<ChapterPreviewProps> = ({ chapterNumber, chapterT
 
   useEffect(() => {
     const loadPreview = async () => {
+      // Check cache first
+      const cacheKey = `preview-${chapterNumber}`;
+      const cached = localStorage.getItem(cacheKey);
+      
+      if (cached) {
+        setPreview(cached);
+        setIsLoading(false);
+        return;
+      }
+      
       setIsLoading(true);
       try {
         const previewText = await fetchChapterPreview(chapterNumber);
         setPreview(previewText);
+        // Cache the result
+        localStorage.setItem(cacheKey, previewText);
       } catch (error) {
         console.error('Error loading preview:', error);
         setPreview(null);

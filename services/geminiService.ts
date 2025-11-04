@@ -1,5 +1,6 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { GitaWisdom, Chapter, Verse } from '../types';
+import { cacheService } from './cacheService';
 
 // Per instructions, API key must come from process.env.API_KEY
 // Check both API_KEY and GEMINI_API_KEY, and also check if it's a string (not undefined)
@@ -128,11 +129,19 @@ const chapterSchema = {
 
 
 export const fetchWisdomForChapter = async (chapter: number): Promise<GitaWisdom> => {
+    const cacheKey = `wisdom-${chapter}`;
+    
+    // Check cache first
+    const cached = cacheService.get<GitaWisdom>(cacheKey);
+    if (cached) {
+        return cached;
+    }
+    
     // Use mock data if no API key is available
     if (!ai) {
-        // Simulate a small delay for realism
-        await new Promise(resolve => setTimeout(resolve, 800));
-        return getMockWisdom(chapter);
+        const mockData = getMockWisdom(chapter);
+        cacheService.set(cacheKey, mockData);
+        return mockData;
     }
     
     try {
@@ -150,17 +159,33 @@ export const fetchWisdomForChapter = async (chapter: number): Promise<GitaWisdom
 
         const jsonText = response.text.trim();
         const wisdom: GitaWisdom = JSON.parse(jsonText);
+        
+        // Cache the result
+        cacheService.set(cacheKey, wisdom);
+        
         return wisdom;
     } catch (error) {
         console.error("Error fetching wisdom from Gemini API:", error);
         // Fallback to mock data in case of API error
-        return getMockWisdom(chapter);
+        const mockData = getMockWisdom(chapter);
+        cacheService.set(cacheKey, mockData);
+        return mockData;
     }
 };
 
 export const fetchChapterPreview = async (chapterNumber: number): Promise<string> => {
+    const cacheKey = `preview-${chapterNumber}`;
+    
+    // Check cache first
+    const cached = cacheService.get<string>(cacheKey);
+    if (cached) {
+        return cached;
+    }
+    
     if (!ai) {
-        return "Chapter previews require an API key. This chapter will explore the profound teachings of the Ashtavakra Gita on the nature of the Self and reality.";
+        const defaultText = "Chapter previews require an API key. This chapter will explore the profound teachings of the Ashtavakra Gita on the nature of the Self and reality.";
+        cacheService.set(cacheKey, defaultText);
+        return defaultText;
     }
     
     try {
@@ -182,7 +207,9 @@ Write 2-3 sentences that act as a preview/introduction to prepare the reader for
             },
         });
 
-        return response.text.trim();
+        const previewText = response.text.trim();
+        cacheService.set(cacheKey, previewText);
+        return previewText;
     } catch (error) {
         console.error("Error fetching chapter preview:", error);
         throw new Error("Failed to generate preview");
@@ -257,11 +284,19 @@ Keep the explanation clear, profound, and accessible. Write in 2-3 paragraphs.`;
 };
 
 export const fetchChapterContent = async (chapter: number): Promise<Chapter> => {
+    const cacheKey = `chapter-${chapter}`;
+    
+    // Check cache first
+    const cached = cacheService.get<Chapter>(cacheKey);
+    if (cached) {
+        return cached;
+    }
+    
     // Use mock data if no API key is available
     if (!ai) {
-        // Simulate a small delay for realism
-        await new Promise(resolve => setTimeout(resolve, 800));
-        return getMockChapter(chapter);
+        const mockData = getMockChapter(chapter);
+        cacheService.set(cacheKey, mockData);
+        return mockData;
     }
     
     try {
@@ -291,7 +326,7 @@ CRITICAL REQUIREMENTS - READ CAREFULLY:
 Please provide the COMPLETE Chapter ${chapter} with ALL its verses from the original Ashtavakra Gita text. If you're unsure of the exact number of verses, provide at least 10-15 verses, ensuring they are accurate to the actual Ashtavakra Gita text.`;
 
         const response = await ai.models.generateContent({
-            model: "gemini-2.5-pro", // Using pro for more complex, structured data
+            model: "gemini-2.5-flash", // Using flash for faster responses
             contents: prompt,
             config: {
                 responseMimeType: "application/json",
@@ -308,10 +343,15 @@ Please provide the COMPLETE Chapter ${chapter} with ALL its verses from the orig
             throw new Error(`No verses returned for chapter ${chapter}`);
         }
         
+        // Cache the result
+        cacheService.set(cacheKey, chapterContent);
+        
         return chapterContent;
     } catch (error) {
         console.error(`Error fetching content for chapter ${chapter}:`, error);
         // Fallback to mock data in case of API error
-        return getMockChapter(chapter);
+        const mockData = getMockChapter(chapter);
+        cacheService.set(cacheKey, mockData);
+        return mockData;
     }
 };

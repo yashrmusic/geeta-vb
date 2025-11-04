@@ -25,13 +25,31 @@ const BookView: React.FC<BookViewProps> = ({ chapter, onProgressUpdate }) => {
 
   useEffect(() => {
     const loadChapter = async () => {
-      setIsLoading(true);
+      // Check localStorage cache first for instant display
+      const cacheKey = `chapter-${chapter}`;
+      const cached = localStorage.getItem(cacheKey);
+      
+      if (cached) {
+        try {
+          const parsed = JSON.parse(cached);
+          setChapterData(parsed);
+          setIsLoading(false);
+        } catch (e) {
+          // Invalid cache, continue with fetch
+          setIsLoading(true);
+        }
+      } else {
+        setIsLoading(true);
+      }
+      
       setError(null);
-      setChapterData(null);
       setCurrentPage(1); // Reset to first page
+      
       try {
         const data = await fetchChapterContent(chapter);
         setChapterData(data);
+        // Cache in localStorage for persistence
+        localStorage.setItem(cacheKey, JSON.stringify(data));
       } catch (err) {
         if (err instanceof Error) {
             setError(err.message);

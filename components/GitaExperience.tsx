@@ -25,40 +25,68 @@ const GitaExperience: React.FC<GitaExperienceProps> = ({ onBackToHome }) => {
   const [readingProgress, setReadingProgress] = useState(0);
 
   const loadWisdom = useCallback(async (chapter: number) => {
-    setIsLoading(true);
+    // Check cache first for instant display
+    const cachedWisdom = localStorage.getItem(`wisdom-${chapter}`);
+    if (cachedWisdom) {
+      try {
+        const parsed = JSON.parse(cachedWisdom);
+        setWisdom(parsed);
+        setIsLoading(false);
+      } catch (e) {
+        // Invalid cache, continue with fetch
+      }
+    } else {
+      setIsLoading(true);
+    }
+    
     setError(null);
     setLoadingProgress(0);
     
-    // Simulate loading progress
-    const interval = setInterval(() => {
-      setLoadingProgress(prev => {
-        if (prev >= 95) {
-          clearInterval(interval);
-          return prev;
-        }
-        return prev + 5;
-      });
-    }, 200);
+    // Simulate loading progress (only if not cached)
+    let interval: NodeJS.Timeout | null = null;
+    if (!cachedWisdom) {
+      interval = setInterval(() => {
+        setLoadingProgress(prev => {
+          if (prev >= 95) {
+            if (interval) clearInterval(interval);
+            return prev;
+          }
+          return prev + 5;
+        });
+      }, 100); // Faster progress updates
+    }
 
     try {
       const newWisdom = await fetchWisdomForChapter(chapter);
       setWisdom(newWisdom);
+      // Cache in localStorage for persistence
+      localStorage.setItem(`wisdom-${chapter}`, JSON.stringify(newWisdom));
       setLoadingProgress(100);
     } catch (err) {
       setError('Failed to fetch wisdom. Please try again later.');
       console.error(err);
       setLoadingProgress(100);
     } finally {
-      clearInterval(interval);
-      setTimeout(() => {
-        setIsLoading(false);
-        setLoadingProgress(0);
-      }, 500);
+      if (interval) clearInterval(interval);
+      setIsLoading(false);
+      setLoadingProgress(0);
     }
   }, []);
 
   useEffect(() => {
     loadWisdom(currentChapter);
+    
+    // Prefetch adjacent chapters in background (non-blocking)
+    const prefetchNext = async () => {
+      const { fetchWisdomForChapter } = await import('../services/geminiService');
+      if (currentChapter > 1) {
+        fetchWisdomForChapter(currentChapter - 1).catch(() => {});
+      }
+      if (currentChapter < TOTAL_CHAPTERS) {
+        fetchWisdomForChapter(currentChapter + 1).catch(() => {});
+      }
+    };
+    prefetchNext();
   }, [currentChapter, loadWisdom]);
 
   const handleChapterChange = (chapter: number) => {
