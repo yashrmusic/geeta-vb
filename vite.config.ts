@@ -22,6 +22,25 @@ export default defineConfig(({ mode }) => {
         alias: {
           '@': path.resolve(__dirname, '.'),
         }
+      },
+      build: {
+        // Optimize build for faster loading
+        minify: 'esbuild',
+        target: 'esnext',
+        rollupOptions: {
+          output: {
+            manualChunks: {
+              'react-vendor': ['react', 'react-dom'],
+              'gemini-vendor': ['@google/genai'],
+            }
+          }
+        },
+        // Optimize chunk size
+        chunkSizeWarningLimit: 1000,
+      },
+      // Preload optimizations
+      optimizeDeps: {
+        include: ['react', 'react-dom'],
       }
     };
 });

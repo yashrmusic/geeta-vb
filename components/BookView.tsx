@@ -1,12 +1,14 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, lazy, Suspense } from 'react';
 import { Chapter, Verse } from '../types';
 import { fetchChapterContent } from '../services/geminiService';
-import VerseDisplay from './VerseDisplay';
 import LoadingSpinner from './LoadingSpinner';
-import PodcastEmbeds from './PodcastEmbeds';
 import ShareButton from './ShareButton';
-import ChapterPreview from './ChapterPreview';
-import AudioMode from './AudioMode';
+
+// Lazy load heavy components
+const VerseDisplay = lazy(() => import('./VerseDisplay'));
+const PodcastEmbeds = lazy(() => import('./PodcastEmbeds'));
+const ChapterPreview = lazy(() => import('./ChapterPreview'));
+const AudioMode = lazy(() => import('./AudioMode'));
 
 interface BookViewProps {
   chapter: number;
@@ -91,16 +93,32 @@ const BookView: React.FC<BookViewProps> = ({ chapter, onProgressUpdate }) => {
              <p className="text-amber-100/70 italic text-base mb-6 leading-relaxed">{chapterData.summary}</p>
              <div className="h-px bg-gradient-to-r from-transparent via-amber-400/30 to-transparent mb-6"></div>
              
-             <ChapterPreview chapterNumber={chapterData.chapter_number} chapterTitle={chapterData.title} />
+             <Suspense fallback={<div className="h-20"></div>}>
+               <ChapterPreview chapterNumber={chapterData.chapter_number} chapterTitle={chapterData.title} />
+             </Suspense>
              
-             <AudioMode chapterNumber={chapterData.chapter_number} chapterTitle={chapterData.title} />
+             <Suspense fallback={<div className="h-20"></div>}>
+               <AudioMode chapterNumber={chapterData.chapter_number} chapterTitle={chapterData.title} />
+             </Suspense>
              
              <div className="h-px bg-gradient-to-r from-transparent via-amber-400/20 to-transparent mb-6"></div>
 
             <div className="space-y-6 flex-grow">
-                {currentVerses.map((verse) => (
+                <Suspense fallback={
+                  <div className="space-y-6">
+                    {[1, 2, 3].map((i) => (
+                      <div key={i} className="p-6 bg-slate-800/20 rounded-xl animate-pulse">
+                        <div className="h-4 w-20 bg-amber-500/20 rounded mb-4"></div>
+                        <div className="h-8 bg-slate-700/30 rounded mb-3"></div>
+                        <div className="h-6 bg-slate-700/20 rounded"></div>
+                      </div>
+                    ))}
+                  </div>
+                }>
+                  {currentVerses.map((verse) => (
                     <VerseDisplay key={verse.verse_number} verse={verse} chapterNumber={chapterData.chapter_number} />
-                ))}
+                  ))}
+                </Suspense>
             </div>
 
             <div className="flex justify-between items-center mt-8 pt-6 border-t border-amber-500/20">
@@ -110,7 +128,14 @@ const BookView: React.FC<BookViewProps> = ({ chapter, onProgressUpdate }) => {
             </div>
             
             <div className="h-px bg-gradient-to-r from-transparent via-amber-400/20 to-transparent my-8"></div>
-            <PodcastEmbeds currentChapter={chapter} />
+            <Suspense fallback={
+              <div className="bg-slate-800/20 rounded-xl p-6 animate-pulse">
+                <div className="h-6 w-32 bg-amber-500/20 rounded mb-4"></div>
+                <div className="aspect-video bg-slate-700/30 rounded"></div>
+              </div>
+            }>
+              <PodcastEmbeds currentChapter={chapter} />
+            </Suspense>
         </div>
       ) : null}
     </div>

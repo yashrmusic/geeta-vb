@@ -1,6 +1,9 @@
-import React, { useState } from 'react';
-import HomePage from './components/HomePage';
-import GitaExperience from './components/GitaExperience';
+import React, { useState, lazy, Suspense } from 'react';
+import LoadingSpinner from './components/LoadingSpinner';
+
+// Lazy load components for faster initial load
+const HomePage = lazy(() => import('./components/HomePage'));
+const GitaExperience = lazy(() => import('./components/GitaExperience'));
 
 const App: React.FC = () => {
   const [showExperience, setShowExperience] = useState(false);
@@ -18,11 +21,17 @@ const App: React.FC = () => {
         }}></div>
       </div>
 
-      {showExperience ? (
-        <GitaExperience onBackToHome={() => setShowExperience(false)} />
-      ) : (
-        <HomePage onEnterExperience={() => setShowExperience(true)} />
-      )}
+      <Suspense fallback={
+        <div className="flex items-center justify-center min-h-screen">
+          <LoadingSpinner />
+        </div>
+      }>
+        {showExperience ? (
+          <GitaExperience onBackToHome={() => setShowExperience(false)} />
+        ) : (
+          <HomePage onEnterExperience={() => setShowExperience(true)} />
+        )}
+      </Suspense>
     </div>
   );
 };
