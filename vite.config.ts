@@ -4,7 +4,11 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, '.', '');
+    // Set base path for GitHub Pages deployment
+    const base = process.env.NODE_ENV === 'production' ? '/geeta-vb/' : '/';
+    
     return {
+      base,
       server: {
         port: 3000,
         host: '0.0.0.0',
