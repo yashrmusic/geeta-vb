@@ -1,4 +1,5 @@
 import React from 'react';
+import InstallButton from './InstallButton';
 
 const Header: React.FC = () => {
   return (
@@ -27,6 +28,9 @@ const Header: React.FC = () => {
         <div className="w-8 h-px bg-gradient-to-r from-transparent to-amber-400/40"></div>
         <div className="w-1.5 h-1.5 bg-amber-400/60 rounded-full"></div>
         <div className="w-8 h-px bg-gradient-to-l from-transparent to-amber-400/40"></div>
+      </div>
+      <div className="mt-6 flex justify-center">
+        <InstallButton />
       </div>
     </header>
   );

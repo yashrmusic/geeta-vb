@@ -1,0 +1,36 @@
+{
+  "name": "Ashtavakra Gita",
+  "short_name": "Ashtavakra Gita",
+  "description": "Explore the profound teachings of the Ashtavakra Gita - Ancient Wisdom for the Modern Soul",
+  "start_url": "/geeta-vb/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#f59e0b",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/geeta-vb/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/geeta-vb/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["education", "books", "spirituality"],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "Chapter 1",
+      "short_name": "Ch 1",
+      "description": "Start reading Chapter 1",
+      "url": "/geeta-vb/?chapter=1",
+      "icons": [{ "src": "/geeta-vb/icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}
+
